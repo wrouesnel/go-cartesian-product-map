@@ -1,30 +1,39 @@
 package cartesian_test
 
 import (
-	"fmt"
+	"testing"
 
-	"github.com/trevormh/go-cartesian-product-map"
+	"github.com/wrouesnel/go-cartesian-product-map"
+	. "gopkg.in/check.v1"
 )
 
-func ExampleIter() {
-	a := map[string][]interface{} {
-		"some_key": {1, 2, "c"},
-		"another_key": {"ten","nine","eight"},
-	}
-	
-	b := map[string][]interface{} {
-		"b_key": {10,11,12},
+// Hook up gocheck into the "go test" runner.
+func Test(t *testing.T) { TestingT(t) }
+
+type FunctionSuite struct{}
+
+var _ = Suite(&FunctionSuite{})
+
+func (s *FunctionSuite) TestInterfaceIter(c *C) {
+	x := map[string][]interface{}{
+		"some_key":    {1, 2, "c"},
+		"another_key": {"ten", "nine", "eight"},
 	}
 
-	c := map[string][]interface{} {
+	y := map[string][]interface{}{
+		"b_key": {10, 11, 12},
+	}
+
+	z := map[string][]interface{}{
 		"key-c": {"test"},
 	}
 
-	d := cartesian.Iter(a, b, c)
+	a := cartesian.Iter(x, y, z)
 
 	// receive products through channel
-	for product := range d {
-		fmt.Println(product)
+	results := []map[string]interface{}{}
+	for product := range a {
+		results = append(results, product)
 	}
 
 	// Unordered Output:

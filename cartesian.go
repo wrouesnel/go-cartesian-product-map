@@ -5,25 +5,25 @@ import (
 )
 
 // Iter takes interface-slices and returns a channel, receiving cartesian products
-func Iter(params ...map[string][]interface{}) chan map[string]interface{} {
+func Iter[K comparable, V any](params ...map[K][]V) chan map[K]V {
 	// create channel
-	c := make(chan map[string]interface{})
+	c := make(chan map[K]V)
 	// create waitgroup
 	var wg sync.WaitGroup
 	// call iterator
 	wg.Add(1)
 
 	// flatten any params passed in with multiple keys
-	var combined []map[string][]interface{}
-	for _,m := range params {
-		for key,val := range m {
-			flattened := map[string][]interface{} {
+	var combined []map[K][]V
+	for _, m := range params {
+		for key, val := range m {
+			flattened := map[K][]V{
 				key: val,
 			}
 			combined = append(combined, flattened)
 		}
 	}
-	iterate(&wg, c, map[string]interface{} {}, combined...)
+	iterate(&wg, c, map[K]V{}, combined...)
 
 	// call channel-closing go-func
 	go func() { wg.Wait(); close(c) }()
@@ -32,7 +32,7 @@ func Iter(params ...map[string][]interface{}) chan map[string]interface{} {
 }
 
 // private, recursive Iteration-Function
-func iterate(wg *sync.WaitGroup, channel chan map[string]interface{}, result map[string]interface{}, params ...map[string][]interface{}) {
+func iterate[K comparable, V any](wg *sync.WaitGroup, channel chan map[K]V, result map[K]V, params ...map[K][]V) {
 	// dec WaitGroup when finished
 	defer wg.Done()
 	// no more params left?
@@ -44,7 +44,7 @@ func iterate(wg *sync.WaitGroup, channel chan map[string]interface{}, result map
 	// shift first param
 	p, params := params[0], params[1:]
 
-	var pkey string
+	var pkey K
 	for key := range p {
 		pkey = key
 		break
@@ -54,15 +54,15 @@ func iterate(wg *sync.WaitGroup, channel chan map[string]interface{}, result map
 	for i := 0; i < len(p[pkey]); i++ {
 		// inc WaitGroup
 		wg.Add(1)
-		
+
 		// create copy of result
-		resultCopy := map[string]interface{}{}
-		for k,v := range result {
+		resultCopy := map[K]V{}
+		for k, v := range result {
 			resultCopy[k] = v
 		}
 		resultCopy[pkey] = p[pkey][i]
 
 		// call self with remaining params
-		go iterate(wg, channel, resultCopy, params...)
+		go iterate[K, V](wg, channel, resultCopy, params...)
 	}
 }

@@ -1,15 +1,17 @@
 # go-cartesian-product-map
 
-This is a modified version of [schwarmco/go-cartesian-product](https://github.com/schwarmco/go-cartesian-product) to enable creating cartesian products while retaining map keys.
+This is a modified version of [trevormh/go-cartesian-map-product](https://github.com/trevormh/go-cartesian-map-product) 
+which enables creating cartesian products while retaining map keys. This version uses generics to allow avoiding 
+interface casting.
 
-keep in mind, that because [how golang handles maps](https://blog.golang.org/go-maps-in-action#TOC_7.) your results will not be "in order"
+Keep in mind, that because [how golang handles maps](https://blog.golang.org/go-maps-in-action#TOC_7.) your results will not be "in order"
 
 ## Installation
 
 In order to start, `go get` this repository:
 
 ```
-go get trevormh/go-cartesian-product-map
+go get github.com/wrouesnel/go-cartesian-product-map
 ```
 
 ## Usage
@@ -17,7 +19,7 @@ go get trevormh/go-cartesian-product-map
 ```go
 import (
     "fmt"
-    "github.com/trevormh/go-cartesian-product-map
+    "github.com/wrouesnel/go-cartesian-product-map
 )
 
 func main() {
